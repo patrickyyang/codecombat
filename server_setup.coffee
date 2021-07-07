@@ -201,7 +201,7 @@ exports.setupMiddleware = (app) ->
   setupExpressMiddleware app
   setupFeaturesMiddleware app
 
-  setupCountryRedirectMiddleware app, 'china', config.chinaDomain
+  # setupCountryRedirectMiddleware app, 'china', config.chinaDomain
 
   setupOneSecondDelayMiddleware app
   setupRedirectMiddleware app
@@ -306,6 +306,12 @@ setupProxyMiddleware = (app) ->
   console.info 'Using dev proxy server'
   app.use (req, res, next) ->
     req.proxied = true
+    req.headers['host'] = 'koudashijie.com'
+    if req.headers['origin']
+      req.headers.origin = req.headers.origin.replace('http://localhost:3001', 'https://koudashijie.com')
+    if req.headers.referer
+      req.headers.referer = req.headers.referer.replace('http://localhost:3001', 'https://koudashijie.com')
+      
     proxy.web req, res, (e) ->
       console.warn("Failed to proxy: ", e)
       res.status(502).send({message: 'Proxy failed'})

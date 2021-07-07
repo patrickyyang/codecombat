@@ -51,7 +51,7 @@ module.exports = class CocoRouter extends Backbone.Router
 
     'about': go('AboutView')
     'contact-cn': go('ContactCNView')
-    'china-bridge': go('ChinaBridgeView')
+    # 'china-bridge': go('ChinaBridgeView')
 
     'account': go('account/MainAccountView')
     'account/oauth-aiyouth': go('account/OAuthAIYouthView')

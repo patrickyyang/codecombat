@@ -193,6 +193,7 @@ module.exports = class Angel extends CocoClass
     @work.preload = false
 
   infinitelyLooped: (escaped=false, nonUserCodeProblem=false) =>
+    return
     @say 'On infinitely looped! Aborting?', @aborting
     return if @aborting
     problem = type: 'runtime', level: 'error', id: 'runtime_InfiniteLoop', message: 'Code never finished. It\'s either really slow or has an infinite loop.'
