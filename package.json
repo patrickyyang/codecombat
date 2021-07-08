@@ -182,7 +182,7 @@
     "requirejs": "~2.1.10",
     "sass-loader": "^6.0.6",
     "webpack-bundle-analyzer": "^2.9.0",
-    "webpack-livereload-plugin": "https://github.com/codecombat/webpack-livereload-plugin/tarball/master"
+    "webpack-livereload-plugin": "https://github.com/codecombat/webpack-livereload-plugin/tarball/v0.11.0"
   },
   "optionalDependencies": {
     "newrelic": "^1.24.0",
