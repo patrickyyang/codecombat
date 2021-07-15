@@ -185,45 +185,55 @@ module.exports = class SpriteParser
       if node.type is 'FunctionExpression'
         name = node.parent?.left?.property?.name
         if name
+          if name == 'AnMovieClip'
+              return
           expression = node.parent.parent
           unless expression.parent?.right?.right
             if /frame_[\d]+/.test name  # Skip some useless KR function things
               return
-          kind = expression.parent.right.right.callee.property.name
-          statement = node.parent.parent.parent.parent
-          statementIndex = _.indexOf statement.parent.body, statement
-          nominalBoundsStatement = statement.parent.body[statementIndex + 1]
-          nominalBoundsRange = nominalBoundsStatement.expression.right.range
-          nominalBoundsSource = @subSourceFromRange nominalBoundsRange, source
-          nominalBounds = @grabFunctionArguments nominalBoundsSource, true
+            
+          kind = expression.parent.right?.right?.callee?.property?.name or expression.parent.right?.callee?.name
+          if kind in ['Container', 'MovieClip', 'getMCSymbolPrototype']
+            statement = expression.parent.parent
+            statementIndex = _.indexOf statement.parent.body, statement
+            if kind == 'getMCSymbolPrototype'
+              nominalBoundsStatement = expression.parent.right.arguments[1]
+              frameBoundsStatement = expression.parent.right.arguments[2]
+            else 
+              nominalBoundsStatement = statement.parent.body[statementIndex + 1].expression.right
+              frameBoundsStatement = statement.parent.body[statementIndex + 2]?.expression?.right
+            nominalBoundsRange = nominalBoundsStatement.range
+            nominalBoundsSource = @subSourceFromRange nominalBoundsRange, source
+            nominalBounds = @grabFunctionArguments nominalBoundsSource, true
 
-          frameBoundsStatement = statement.parent.body[statementIndex + 2]
-          if frameBoundsStatement
-            frameBoundsRange = frameBoundsStatement.expression.right.range
-            frameBoundsSource = @subSourceFromRange frameBoundsRange, source
-            if frameBoundsSource.search(/\[rect/) is -1  # some other statement; we don't have multiframe bounds
-              console.log 'Didn\'t have multiframe bounds for this movie clip.'
-              frameBounds = [_.clone(nominalBounds)]
+            if frameBoundsStatement 
+              # Need to test the logic
+              frameBoundsRange = frameBoundsStatement.range
+              frameBoundsSource = @subSourceFromRange frameBoundsRange, source
+              if frameBoundsSource.search(/\[rect/) is -1  # some other statement; we don't have multiframe bounds
+                console.log 'Didn\'t have multiframe bounds for this movie clip.'
+                frameBounds = [_.clone(nominalBounds)]
+              else
+                lastRect = nominalBounds
+                frameBounds = []
+                for arg, i in frameBoundsStatement.elements
+                  bounds = null
+                  argSource = @subSourceFromRange arg.range, source
+                  if arg.type is 'Identifier'
+                    bounds = lastRect
+                  else if arg.type is 'NewExpression'
+                    bounds = @grabFunctionArguments argSource, true
+                  else if arg.type is 'AssignmentExpression'
+                    bounds = @grabFunctionArguments argSource.replace('rect=', ''), true
+                    lastRect = bounds
+                  else if arg.type is 'Literal' and arg.value is null
+                    bounds = [0, 0, 1, 1]  # Let's try this.
+                  frameBounds.push _.clone bounds
             else
-              lastRect = nominalBounds
-              frameBounds = []
-              for arg, i in frameBoundsStatement.expression.right.elements
-                bounds = null
-                argSource = @subSourceFromRange arg.range, source
-                if arg.type is 'Identifier'
-                  bounds = lastRect
-                else if arg.type is 'NewExpression'
-                  bounds = @grabFunctionArguments argSource, true
-                else if arg.type is 'AssignmentExpression'
-                  bounds = @grabFunctionArguments argSource.replace('rect=', ''), true
-                  lastRect = bounds
-                else if arg.type is 'Literal' and arg.value is null
-                  bounds = [0, 0, 1, 1]  # Let's try this.
-                frameBounds.push _.clone bounds
-          else
-            frameBounds = [_.clone(nominalBounds)]
+              frameBounds = [_.clone(nominalBounds)]
 
-          functionExpressions.push {name: name, bounds: nominalBounds, frameBounds: frameBounds, expression: node.parent.parent, kind: kind}
+            kind = 'MovieClip' if kind == 'getMCSymbolPrototype'
+            functionExpressions.push {name: name, bounds: nominalBounds, frameBounds: frameBounds, expression: expression, kind: kind}
     @walk ast, null, gatherFunctionExpressions
     functionExpressions
 
@@ -381,6 +391,8 @@ module.exports = class SpriteParser
       body = expressionStatement.parent.body
       expressionStatementIndex = _.indexOf body, expressionStatement
       t = body[expressionStatementIndex + 1].expression
+      if t.right.type == 'ThisExpression'
+        return
       tSource = @subSourceFromRange t.range, source
       t = @grabFunctionArguments tSource, true
       gn = @animationRenamings[libName] ? libName
