@@ -93,7 +93,9 @@ module.exports = class SegmentedSprite extends createjs.Container
       if sprite.currentFrame is 0 or @usePlaceholders
         sprite.gotoAndStop(0)
         @notifyActionNeedsRender(action)
-        bounds = @thangType.get('raw').containers[action.container].b
+        bounds = @thangType.get('raw').containers[action.container]?.b
+        if not bounds
+          bounds = @thangType.get('raw').animations[action.container]?.bounds
         actionScale = (action.scale ? @thangType.get('scale') ? 1)
         sprite.scaleX = actionScale * bounds[2] / (SPRITE_PLACEHOLDER_WIDTH * @resolutionFactor)
         sprite.scaleY = actionScale * bounds[3] / (SPRITE_PLACEHOLDER_WIDTH * @resolutionFactor)
@@ -181,7 +183,9 @@ module.exports = class SegmentedSprite extends createjs.Container
       if innerContainer.currentFrame is 0 or @usePlaceholders
         innerContainer.gotoAndStop(0)
         @actionNotSupported = true
-        bounds = @thangType.get('raw').containers[localContainer.gn].b
+        bounds = @thangType.get('raw').containers[localContainer.gn]?.b
+        if not bounds
+          bounds = @thangType.get('raw').animations[action.container]?.bounds
         innerContainer.x = bounds[0]
         innerContainer.y = bounds[1]
         innerContainer.scaleX = bounds[2] / (SPRITE_PLACEHOLDER_WIDTH * @resolutionFactor)

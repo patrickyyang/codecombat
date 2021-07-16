@@ -249,7 +249,7 @@ module.exports = class SpriteParser
     block = block.expression.object.right.body
     localGraphics = []
     gatherShapeDefinitions = (node) =>
-      return unless node.type is 'NewExpression' and node.callee.property.name is 'Graphics'
+      return unless node.type is 'NewExpression' and node.callee?.property?.name is 'Graphics'
       blockName = node.parent.parent.parent.id.name
       graphicsString = node.parent.parent.arguments[0].value
       localGraphics.push {p:graphicsString, bn:blockName}
@@ -391,8 +391,9 @@ module.exports = class SpriteParser
       body = expressionStatement.parent.body
       expressionStatementIndex = _.indexOf body, expressionStatement
       t = body[expressionStatementIndex + 1].expression
-      if t.right.type == 'ThisExpression'
-        return
+      if t.right?.type == 'ThisExpression' # An 2019
+        # `this.instance.parent = this;` skip to next statement
+        t = body[expressionStatementIndex + 2].expression
       tSource = @subSourceFromRange t.range, source
       t = @grabFunctionArguments tSource, true
       gn = @animationRenamings[libName] ? libName

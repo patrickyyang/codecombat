@@ -116,6 +116,10 @@ module.exports = class SpriteBuilder
     shape
 
   buildContainerFromStore: (containerKey) ->
+    # Only MovieClip over Animate CC 2017
+    if not @containerStore[containerKey]
+      return @buildMovieClip(containerKey)
+
     console.error 'Yo we don\'t have no containerKey' unless containerKey
     contData = @containerStore[containerKey]
     cont = new createjs.Container()

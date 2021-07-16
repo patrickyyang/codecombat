@@ -25,6 +25,8 @@ module.exports = class VectorIconSetupModal extends ModalView
   constructor: (options, @thangType) ->
     portrait = @thangType.get('actions')?.portrait
     @containers = _.keys(@thangType.get('raw')?.containers or {})
+    if Object.keys(@containers).length == 0
+      @containers = _.keys(@thangType.get('raw')?.animations or {})
     @container = portrait?.container or _.last @containers
     @scale = portrait?.scale or 1
     @regX = portrait?.positions?.registration?.x or 0
@@ -76,7 +78,10 @@ module.exports = class VectorIconSetupModal extends ModalView
 
   onClickCenter: ->
     containerInfo = @thangType.get('raw').containers[@container]
-    b = containerInfo.b
+    b = containerInfo?.b
+    if not b
+      movieClipInfo = @thangType.get('raw').animations[@container]
+      b = movieClipInfo.bounds
     @regX = b[0]
     @regY = b[1]
     maxDimension = Math.max(b[2], b[3])

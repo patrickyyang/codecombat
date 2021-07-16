@@ -57,7 +57,9 @@ module.exports = class SingularSprite extends createjs.Sprite
       if @currentFrame is 0 or @usePlaceholders
         @_gotoAndStop(0)
         @notifyActionNeedsRender(action)
-        bounds = @thangType.get('raw').containers[action.container].b
+        bounds = @thangType.get('raw').containers[action.container]?.b
+        if not bounds
+          bounds = @thangType.get('raw').animations[action.container]?.bounds
         actionScale = (action.scale ? @thangType.get('scale') ? 1)
         @scaleX = actionScale * bounds[2] / (SPRITE_PLACEHOLDER_WIDTH * @resolutionFactor)
         @scaleY = actionScale * bounds[3] / (SPRITE_PLACEHOLDER_WIDTH * @resolutionFactor)
