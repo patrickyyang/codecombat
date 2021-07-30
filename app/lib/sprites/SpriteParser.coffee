@@ -421,7 +421,7 @@ module.exports = class SpriteParser
         argsSource = @subSourceFromRange(range, source)
         argsSource = argsSource.replace(/mask/g, 'this.mask') # so the mask thing will be handled correctly as a blockName in the next line
         argsSource = argsSource.replace(/this\.([a-z_0-9]+)/ig, '"$1"') # turns this.shape literal to 'shape' string
-        argsSource = argsSource.replace(/cjs(.+)\)/, '"createjs$1)"') # turns cjs.Ease.get(0.5)
+        argsSource = argsSource.replace(/cjs(.+)/, '"createjs$1"') # turns cjs.Ease.get(0.5) and cjs.Ease.quartOut
         argsSource = '{}' if argsSource is 'this' # not sure what this should be but it looks like we don't need it for KR sprites
 
         args = eval "[#{argsSource}]"

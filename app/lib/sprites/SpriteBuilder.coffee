@@ -6,8 +6,8 @@ module.exports = class SpriteBuilder
     @options ?= {}
     raw = @thangType.get('raw') or {}
     @shapeStore = raw.shapes
-    @containerStore = raw.containers
-    @animationStore = raw.animations
+    @containerStore = raw.containers or {} 
+    @animationStore = raw.animations or {}
     @buildColorMaps()
 
   setOptions: (@options) ->

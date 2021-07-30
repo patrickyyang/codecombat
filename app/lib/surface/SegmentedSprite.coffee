@@ -93,7 +93,7 @@ module.exports = class SegmentedSprite extends createjs.Container
       if sprite.currentFrame is 0 or @usePlaceholders
         sprite.gotoAndStop(0)
         @notifyActionNeedsRender(action)
-        bounds = @thangType.get('raw').containers[action.container]?.b
+        bounds = @thangType.get('raw').containers?[action.container]?.b
         if not bounds
           bounds = @thangType.get('raw').animations[action.container]?.bounds
         actionScale = (action.scale ? @thangType.get('scale') ? 1)
