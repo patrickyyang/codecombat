@@ -157,7 +157,7 @@ module.exports = class Thang
       unless componentClass = classMap[componentClassName]
         console.debug 'Compiling new Component while deserializing:', componentClassName
         componentModel = _.find levelComponents, name: componentClassName
-        componentClass = world.loadClassFromCode componentModel.js, componentClassName, 'component'
+        componentClass = world.loadClassFromModel componentModel
         world.classMap[componentClassName] = componentClass
       t.addComponents [componentClass, componentConfig]
     t.unusedTrackedPropertyKeys = o.unusedTrackedPropertyKeys

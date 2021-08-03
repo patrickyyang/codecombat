@@ -14,7 +14,8 @@ module.exports = class WorldFrame
     nextTime = @time + @world.dt
     return null if nextTime > @world.lifespan and not @world.indefiniteLength
     @hash = @world.rand.seed
-    @hash += system.update() for system in @world.systems
+    for system in @world.systems
+      @hash += system.update() 
     nextFrame = new WorldFrame(@world, nextTime)
     return nextFrame
 

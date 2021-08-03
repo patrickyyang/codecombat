@@ -24,6 +24,7 @@ COUNTDOWN_LEVELS = ['sky-span']
 window.string_score = require 'vendor/scripts/string_score.js' # Used as a global in DB code
 require 'vendor/scripts/coffeescript' # Install the global CoffeeScript compiler #TODO Performance: Load this only when necessary
 require('lib/worldLoader') # Install custom hack to dynamically require library files
+Debug = require('lib/debug/index')
 
 module.exports = class World
   @className: 'World'
@@ -272,7 +273,7 @@ module.exports = class World
     for levelSystem in level.systems
       systemModel = levelSystem.model
       config = levelSystem.config
-      systemClass = @loadClassFromCode systemModel.js, systemModel.name, 'system'
+      systemClass = @loadClassFromModel systemModel
       #console.log "using db system class ---\n", systemClass, "\n--- from code ---n", systemModel.js, "\n---"
       system = new systemClass @, config
       @addSystems system
@@ -294,7 +295,7 @@ module.exports = class World
     for component, componentIndex in thangConfig.components
       componentModel = _.find levelComponents, (c) ->
         c.original is component.original and c.version.major is (component.majorVersion ? 0)
-      componentClass = @loadClassFromCode componentModel.js, componentModel.name, 'component'
+      componentClass = @loadClassFromModel componentModel
       components.push [componentClass, component.config]
       if component.original is ITEM_ORIGINAL
         isItem = true
@@ -327,10 +328,15 @@ module.exports = class World
     @scripts = []
     @addScripts level.scripts...
 
-  loadClassFromCode: (js, name, kind='component') ->
+  loadClassFromModel: (model) ->
+    debug = @loadDebugClassFromModel(model)
+    return debug if debug
+
     # Cache them based on source code so we don't have to worry about extra compilations
     @componentCodeClassMap ?= {}
     @systemCodeClassMap ?= {}
+    kind = if model.system is null then 'system' else 'component'
+    js = model.js
     map = if kind is 'component' then @componentCodeClassMap else @systemCodeClassMap
     c = map[js]
     return c if c
@@ -340,8 +346,17 @@ module.exports = class World
     catch err
       console.error "Couldn't compile #{kind} code:", err, "\n", js
       c = map[js] = {}
-    c.className = name
+    c.className = model.name
     c
+
+  loadDebugClassFromModel: (model) -> 
+    @componentCodeClassMap ?= Debug.loadSystems() 
+    @systemCodeClassMap ?= Debug.loadComponents()
+    system = model.system
+    name = model.name
+    map = if system isnt null then @componentCodeClassMap else @systemCodeClassMap
+    c = map[name]
+    return c if c
 
   updateThangState: (thang) ->
     @frames[@frames.length-1].thangStateMap[thang.id] = thang.getState()
