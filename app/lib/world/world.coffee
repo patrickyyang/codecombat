@@ -354,7 +354,7 @@ module.exports = class World
     @systemCodeClassMap ?= Debug.loadComponents()
     system = model.system
     name = model.name
-    map = if system isnt null then @componentCodeClassMap else @systemCodeClassMap
+    map = if system then @systemCodeClassMap else @componentCodeClassMap
     c = map[name]
     return c if c
 

@@ -55,7 +55,7 @@ module.exports = class Spawns extends Component
     components = []
     for component in thangTypeModel.components
       componentModel = _.find @world.levelComponents, (c) -> c.original is component.original and c.version.major is (component.majorVersion ? 0)
-      componentClass = @world.loadClassFromCode componentModel.js, componentModel.name, 'component'
+      componentClass = @world.loadClassFromModel componentModel
       @world.classMap[componentClass.className] ?= componentClass
       components.push [componentClass, component.config]
     components

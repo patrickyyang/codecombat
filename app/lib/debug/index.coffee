@@ -17,6 +17,7 @@ Programming = require('./systems/Programming')
 Targeting = require('./systems/Targeting')
 UI = require('./systems/UI')
 Vision = require('./systems/Vision')
+Test = require('./systems/Test')
 
 AnnouncesLoops = require('./components/hearing/AnnouncesLoops')
 AttacksAtRange = require('./components/combat/AttacksAtRange')
@@ -380,7 +381,8 @@ loadSystems = ()->
         Programming,
         Targeting,
         UI,
-        Vision
+        Vision,
+        Test
     }
     for k, v of systems
         v.className = k

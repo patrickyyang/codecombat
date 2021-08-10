@@ -461,7 +461,7 @@ module.exports = class ThangsTabView extends CocoView
     for raw in mockThang.components
       comp = _.find allComponents, {original: raw.original}
       continue if comp.name in ['Selectable', 'Attackable']  # Don't draw health bars or intercept clicks
-      componentClass = @world.loadClassFromCode comp.js, comp.name, 'component'
+      componentClass = @world.loadClassFromModel comp
       components.push [componentClass, raw.config]
     thang = new Thang @world, @addThangType.get('name'), 'Add Thang Phantom'
     thang.addComponents components...
